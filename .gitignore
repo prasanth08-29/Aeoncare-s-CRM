@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+*.env
+
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Temporary Debug & Test Scripts
+debug_*.js
+reset_and_sync.js
+backend/test_*.js
+backend/debug_*.js
+backend/check_*.js
+backend/fix_*.js
+backend/make_admin_*.js
+backend/reset_admin_*.js
+backend/update_admin_*.js
+backend/approve_existing.js
+backend/drop_index.js

@@ -72,8 +72,7 @@ export const syncShopifyProducts = async (storeUrl, accessToken) => {
                         // Collect all variants
                         const variants = item.variants.map(v => ({
                             sku: v.sku || "",
-                            title: v.title,
-                            price: v.price
+                            title: v.title
                         }));
 
                         try {

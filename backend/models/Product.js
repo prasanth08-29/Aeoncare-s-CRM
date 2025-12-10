@@ -23,7 +23,6 @@ const productSchema = new mongoose.Schema(
             {
                 sku: String,
                 title: String,
-                price: String
             }
         ]
     },

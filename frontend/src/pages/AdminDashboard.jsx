@@ -44,15 +44,13 @@ const AdminDashboard = () => {
     const [addProductData, setAddProductData] = useState({
         name: "",
         sku: "",
-        category: "",
-        price: ""
+        category: ""
     });
 
     const [editProductData, setEditProductData] = useState({
         name: "",
         sku: "",
-        category: "",
-        price: ""
+        category: ""
     });
 
     const fetchProducts = async (currentPage = 1) => {
@@ -89,7 +87,7 @@ const AdminDashboard = () => {
 
             showToast("Product added successfully");
             setIsAddProductModalOpen(false);
-            setAddProductData({ name: "", sku: "", category: "", price: "" }); // Reset form
+            setAddProductData({ name: "", sku: "", category: "" }); // Reset form
             fetchProducts(1); // Refresh list
         } catch (err) {
             console.error(err);
@@ -106,9 +104,7 @@ const AdminDashboard = () => {
         setEditProductData({
             name: product.name,
             sku: product.sku,
-            category: product.category,
-            // Extract price from first variant if exists
-            price: product.variants && product.variants.length > 0 ? product.variants[0].price : ""
+            category: product.category
         });
         setIsEditProductModalOpen(true);
     };
@@ -373,7 +369,7 @@ const AdminDashboard = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Variants</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
@@ -602,14 +598,7 @@ const AdminDashboard = () => {
                             value={addProductData.category} onChange={handleAddProductChange} required
                         />
                     </div>
-                    <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="price">Price (Optional)</label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="price" type="number" placeholder="0.00" name="price"
-                            value={addProductData.price} onChange={handleAddProductChange}
-                        />
-                    </div>
+
                     <div className="flex justify-end pt-4">
                         <button
                             type="button"
@@ -659,14 +648,7 @@ const AdminDashboard = () => {
                             value={editProductData.category} onChange={handleEditProductChange} required
                         />
                     </div>
-                    <div>
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="edit-price">Price</label>
-                        <input
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                            id="edit-price" type="number" placeholder="0.00" name="price"
-                            value={editProductData.price} onChange={handleEditProductChange}
-                        />
-                    </div>
+
                     <div className="flex justify-end pt-4">
                         <button
                             type="button"

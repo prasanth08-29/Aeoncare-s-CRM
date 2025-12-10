@@ -45,7 +45,7 @@ router.get("/", protect, async (req, res) => {
 // @route   POST /api/products
 // @access  Private
 router.post("/", protect, async (req, res) => {
-    const { name, sku, category, price } = req.body;
+    const { name, sku, category } = req.body;
 
     try {
         if (!name || !sku) {
@@ -57,8 +57,8 @@ router.post("/", protect, async (req, res) => {
             return res.status(400).json({ message: "Product with this SKU already exists" });
         }
 
-        // Create variants array with single default variant if price is provided
-        const variants = price ? [{ sku, title: "Default", price }] : [];
+        // Create variants array - initially empty or could be populated if variants passed (future)
+        const variants = [];
 
         const product = await Product.create({
             name,
@@ -77,7 +77,7 @@ router.post("/", protect, async (req, res) => {
 // @route   PUT /api/products/:id
 // @access  Private
 router.put("/:id", protect, async (req, res) => {
-    const { name, sku, category, price } = req.body;
+    const { name, sku, category } = req.body;
 
     try {
         const product = await Product.findById(req.params.id);
@@ -87,16 +87,7 @@ router.put("/:id", protect, async (req, res) => {
             product.sku = sku || product.sku;
             product.category = category || product.category;
 
-            // Update price in default variant if exists
-            if (price) {
-                if (product.variants && product.variants.length > 0) {
-                    product.variants.forEach(variant => {
-                        variant.price = price;
-                    });
-                } else {
-                    product.variants = [{ sku: product.sku, title: "Default", price }];
-                }
-            }
+
 
             const updatedProduct = await product.save();
             res.json(updatedProduct);

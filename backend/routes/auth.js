@@ -17,26 +17,34 @@ router.post("/register", async (req, res) => {
 
     const userExists = await User.findOne({ email });
     if (userExists) {
-      return res.status(400).json({ message: "User already exists" });
+      return res.status(400).json({ message: "User with this email already exists" });
+    }
+
+    const usernameExists = await User.findOne({ username });
+    if (usernameExists) {
+      return res.status(400).json({ message: "Username already taken" });
     }
 
     const user = await User.create({ username, email, password });
 
     // Send email to admin
-    try {
-      await sendEmail({
-        to: "prasanthofficial03@gmail.com",
-        subject: "New User Registration - Approval Needed",
-        text: `
-                <h1>New User Registered</h1>
-                <p><strong>Username:</strong> ${user.username}</p>
-                <p><strong>Email:</strong> ${user.email}</p>
-                <p>Please login to the Admin Dashboard to approve this user.</p>
-            `,
-      });
-    } catch (error) {
-      console.error("Email send failed:", error);
-      // Do not fail registration if email fails
+    // Send email to admin only if configured
+    if (process.env.EMAIL_USER) {
+      try {
+        await sendEmail({
+          to: "prasanthofficial03@gmail.com",
+          subject: "New User Registration - Approval Needed",
+          text: `
+                  <h1>New User Registered</h1>
+                  <p><strong>Username:</strong> ${user.username}</p>
+                  <p><strong>Email:</strong> ${user.email}</p>
+                  <p>Please login to the Admin Dashboard to approve this user.</p>
+              `,
+        });
+      } catch (error) {
+        console.error("Email send failed:", error);
+        // Do not fail registration if email fails
+      }
     }
 
     res.status(201).json({

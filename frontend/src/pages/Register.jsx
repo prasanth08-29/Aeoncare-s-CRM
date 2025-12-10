@@ -25,7 +25,12 @@ const Register = () => {
       alert(res.data.message);
       navigate("/login");
     } catch (err) {
-      setError(err.response?.data?.message || "Registration failed");
+      setError(
+        err.response?.data?.message ||
+        err.message ||
+        "Registration failed. Check console for details."
+      );
+      alert(JSON.stringify(err.response?.data || err.message));
     }
   };
 

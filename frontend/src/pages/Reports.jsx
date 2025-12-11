@@ -223,24 +223,14 @@ const Reports = () => {
 
                                         {editingLeadId === lead._id ? (
                                             <>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <input
-                                                        type="text"
-                                                        value={editFormData.name}
-                                                        onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
-                                                        className="border rounded p-1 w-full"
-                                                    />
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {lead.name}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {lead.phone}
                                                 </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <input
-                                                        type="text"
-                                                        value={editFormData.product}
-                                                        onChange={(e) => setEditFormData({ ...editFormData, product: e.target.value })}
-                                                        className="border rounded p-1 w-full"
-                                                    />
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {lead.product}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <select

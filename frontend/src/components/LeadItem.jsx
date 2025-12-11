@@ -101,7 +101,7 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
                     ) : (
                         <>
                             <h4 className="font-bold text-lg text-gray-800">
-                                <span className="text-gray-500 mr-2">#{sNo}</span>
+                                <span className="text-gray-500 mr-2">{sNo}.</span>
                                 {lead.name}
                             </h4>
                             <p className="text-gray-600">

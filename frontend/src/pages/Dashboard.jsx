@@ -71,7 +71,7 @@ const Dashboard = ({ user }) => {
                     {loading ? (
                         <p className="text-gray-500">Loading leads...</p>
                     ) : leads.length > 0 ? (
-                        leads.map((lead) => (
+                        leads.map((lead, index) => (
                             <LeadItem
                                 key={lead._id}
                                 lead={lead}

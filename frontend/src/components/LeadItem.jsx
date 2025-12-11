@@ -3,7 +3,7 @@ import axios from "axios";
 
 import Modal from "./Modal";
 
-const LeadItem = ({ lead, currentUser, onLeadUpdated, onLeadDeleted }) => {
+const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [editData, setEditData] = useState({
@@ -100,7 +100,10 @@ const LeadItem = ({ lead, currentUser, onLeadUpdated, onLeadDeleted }) => {
                         </div>
                     ) : (
                         <>
-                            <h4 className="font-bold text-lg text-gray-800">{lead.name}</h4>
+                            <h4 className="font-bold text-lg text-gray-800">
+                                <span className="text-gray-500 mr-2">#{sNo}</span>
+                                {lead.name}
+                            </h4>
                             <p className="text-gray-600">
                                 <span className="font-medium">Phone:</span> {lead.phone}
                             </p>

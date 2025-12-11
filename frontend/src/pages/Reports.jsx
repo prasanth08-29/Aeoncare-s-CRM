@@ -14,6 +14,52 @@ const Reports = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("Total"); // Default to showing all or none
+    const [editingLeadId, setEditingLeadId] = useState(null);
+    const [editFormData, setEditFormData] = useState({ name: "", product: "", status: "" });
+
+    const handleEditClick = (lead) => {
+        setEditingLeadId(lead._id);
+        setEditFormData({ name: lead.name, product: lead.product, status: lead.status });
+    };
+
+    const handleCancelEdit = () => {
+        setEditingLeadId(null);
+        setEditFormData({ name: "", product: "", status: "" });
+    };
+
+    const handleSaveEdit = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const config = { headers: { Authorization: `Bearer ${token}` } };
+            const res = await axios.put(
+                `/api/leads/${editingLeadId}`,
+                editFormData,
+                config
+            );
+
+            // Update local state
+            const updatedLeads = allLeads.map((l) => (l._id === editingLeadId ? res.data : l));
+            setAllLeads(updatedLeads);
+
+            // Re-apply filters
+            filterLeadsByStatus(selectedStatus, updatedLeads);
+
+            // Update stats
+            const newStats = {
+                total: updatedLeads.length,
+                new: updatedLeads.filter((l) => l.status === "New").length,
+                contacted: updatedLeads.filter((l) => l.status === "Contacted").length,
+                converted: updatedLeads.filter((l) => l.status === "Converted").length,
+                lost: updatedLeads.filter((l) => l.status === "Lost").length,
+            };
+            setStats(newStats);
+
+            setEditingLeadId(null);
+        } catch (err) {
+            console.error(err);
+            alert("Error updating lead");
+        }
+    };
 
     const fetchLeads = async () => {
         try {
@@ -164,6 +210,7 @@ const Reports = () => {
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
@@ -173,24 +220,70 @@ const Reports = () => {
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {new Date(lead.createdAt).toLocaleDateString()}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                            {lead.name}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {lead.phone}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {lead.product}
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                ${lead.status === 'New' ? 'bg-blue-100 text-blue-800' :
-                                                    lead.status === 'Contacted' ? 'bg-yellow-100 text-yellow-800' :
-                                                        lead.status === 'Converted' ? 'bg-green-100 text-green-800' :
-                                                            'bg-red-100 text-red-800'}`}>
-                                                {lead.status}
-                                            </span>
-                                        </td>
+
+                                        {editingLeadId === lead._id ? (
+                                            <>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <input
+                                                        type="text"
+                                                        value={editFormData.name}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                                                        className="border rounded p-1 w-full"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {lead.phone}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <input
+                                                        type="text"
+                                                        value={editFormData.product}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, product: e.target.value })}
+                                                        className="border rounded p-1 w-full"
+                                                    />
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <select
+                                                        value={editFormData.status}
+                                                        onChange={(e) => setEditFormData({ ...editFormData, status: e.target.value })}
+                                                        className="border rounded p-1"
+                                                    >
+                                                        <option value="New">New</option>
+                                                        <option value="Contacted">Contacted</option>
+                                                        <option value="Converted">Converted</option>
+                                                        <option value="Lost">Lost</option>
+                                                    </select>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap flex gap-2">
+                                                    <button onClick={handleSaveEdit} className="text-green-600 hover:text-green-900 font-bold">Save</button>
+                                                    <button onClick={handleCancelEdit} className="text-gray-600 hover:text-gray-900">Cancel</button>
+                                                </td>
+                                            </>
+                                        ) : (
+                                            <>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                                    {lead.name}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {lead.phone}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                    {lead.product}
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                        ${lead.status === 'New' ? 'bg-blue-100 text-blue-800' :
+                                                            lead.status === 'Contacted' ? 'bg-yellow-100 text-yellow-800' :
+                                                                lead.status === 'Converted' ? 'bg-green-100 text-green-800' :
+                                                                    'bg-red-100 text-red-800'}`}>
+                                                        {lead.status}
+                                                    </span>
+                                                </td>
+                                                <td className="px-6 py-4 whitespace-nowrap">
+                                                    <button onClick={() => handleEditClick(lead)} className="text-blue-600 hover:text-blue-900 font-medium">Edit</button>
+                                                </td>
+                                            </>
+                                        )}
                                     </tr>
                                 ))
                             ) : (

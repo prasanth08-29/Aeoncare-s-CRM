@@ -75,6 +75,7 @@ const Dashboard = ({ user }) => {
                             <LeadItem
                                 key={lead._id}
                                 lead={lead}
+                                sNo={(page - 1) * 10 + index + 1}
                                 currentUser={user}
                                 onLeadUpdated={handleLeadUpdated}
                                 onLeadDeleted={handleLeadDeleted}

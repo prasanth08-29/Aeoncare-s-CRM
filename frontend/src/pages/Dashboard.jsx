@@ -7,6 +7,7 @@ const Dashboard = ({ user }) => {
     const [leads, setLeads] = useState([]);
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
+    const [totalLeads, setTotalLeads] = useState(0);
     const [loading, setLoading] = useState(true);
 
     const fetchLeads = async (currentPage = 1) => {
@@ -24,6 +25,7 @@ const Dashboard = ({ user }) => {
                 setLeads(res.data.leads);
                 setTotalPages(res.data.totalPages);
                 setPage(res.data.currentPage);
+                setTotalLeads(res.data.totalLeads);
             } else {
                 setLeads([]);
             }
@@ -75,7 +77,7 @@ const Dashboard = ({ user }) => {
                             <LeadItem
                                 key={lead._id}
                                 lead={lead}
-                                sNo={(page - 1) * 10 + index + 1}
+                                sNo={totalLeads - ((page - 1) * 10 + index)}
                                 currentUser={user}
                                 onLeadUpdated={handleLeadUpdated}
                                 onLeadDeleted={handleLeadDeleted}

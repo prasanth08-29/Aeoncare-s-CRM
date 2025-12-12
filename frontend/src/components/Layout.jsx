@@ -29,7 +29,7 @@ const Layout = ({ children, user, setUser }) => {
     return (
         <div className="flex h-screen bg-gray-100">
             {/* Sidebar */}
-            <div className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gray-800 text-white flex flex-col transition-all duration-300 overflow-hidden`}>
+            <div className={`${isSidebarOpen ? 'w-48' : 'w-0'} bg-gray-800 text-white flex flex-col transition-all duration-300 overflow-hidden`}>
                 <div className="p-4 border-b border-gray-700 whitespace-nowrap">
                     <h1 className="text-xl font-bold">Aeoncare CRM</h1>
                     <p className="text-xs text-gray-400 mt-1">

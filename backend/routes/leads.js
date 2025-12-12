@@ -39,7 +39,7 @@ router.get("/", protect, async (req, res) => {
 
         const count = await Lead.countDocuments(query);
         let leadsQuery = Lead.find(query)
-            .sort({ createdAt: -1 })
+            .sort({ createdAt: 1 })
             .populate("createdBy", "username");
 
         // Apply pagination only if limit is not 0 or 'all'

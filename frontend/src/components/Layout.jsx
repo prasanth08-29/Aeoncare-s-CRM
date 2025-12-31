@@ -13,7 +13,7 @@ const Layout = ({ children, user, setUser }) => {
     };
 
     const menuItems = [
-        { path: "/", label: "Leads", icon: "📋" },
+        { path: "/", label: "Recent Leads", icon: "📋" },
         { path: "/reports", label: "Reports", icon: "bar_chart" },
     ];
 

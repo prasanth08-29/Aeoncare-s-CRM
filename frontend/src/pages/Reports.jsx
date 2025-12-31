@@ -270,7 +270,7 @@ const Reports = () => {
                                                             className="text-green-500 hover:text-green-600 transition-colors"
                                                             title="Chat on WhatsApp"
                                                         >
-                                                            <FaWhatsapp size={18} />
+                                                            <FaWhatsapp size={22} />
                                                         </a>
                                                     </div>
                                                 </td>

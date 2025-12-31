@@ -120,7 +120,7 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
                                     className="text-green-500 hover:text-green-600 transition-colors"
                                     title="Chat on WhatsApp"
                                 >
-                                    <FaWhatsapp size={20} />
+                                    <FaWhatsapp size={24} />
                                 </a>
                             </div>
                             <p className="text-gray-600">

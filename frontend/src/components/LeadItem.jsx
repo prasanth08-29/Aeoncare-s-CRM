@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
-
 import Modal from "./Modal";
+import { FaWhatsapp } from "react-icons/fa";
 
 const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
     const [isEditing, setIsEditing] = useState(false);
@@ -74,6 +74,11 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
         }
     };
 
+    const formatWhatsAppLink = (phone) => {
+        const cleaned = phone.replace(/\D/g, "");
+        return `https://wa.me/${cleaned}`;
+    };
+
     return (
         <>
             <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
@@ -104,9 +109,20 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
                                 <span className="text-gray-500 mr-2">{sNo}.</span>
                                 {lead.name}
                             </h4>
-                            <p className="text-gray-600">
-                                <span className="font-medium">Phone:</span> {lead.phone}
-                            </p>
+                            <div className="flex items-center gap-2">
+                                <p className="text-gray-600">
+                                    <span className="font-medium">Phone:</span> {lead.phone}
+                                </p>
+                                <a
+                                    href={formatWhatsAppLink(lead.phone)}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-green-500 hover:text-green-600 transition-colors"
+                                    title="Chat on WhatsApp"
+                                >
+                                    <FaWhatsapp size={20} />
+                                </a>
+                            </div>
                             <p className="text-gray-600">
                                 <span className="font-medium">Product:</span> {lead.product}
                             </p>
@@ -151,8 +167,6 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                 </svg>
                             </button>
-
-
 
                             {currentUser && currentUser.role === "admin" && (
                                 <button

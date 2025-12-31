@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { FaWhatsapp } from "react-icons/fa";
 
 const Reports = () => {
     const [stats, setStats] = useState({
@@ -128,6 +129,11 @@ const Reports = () => {
         </div>
     );
 
+    const formatWhatsAppLink = (phone) => {
+        const cleaned = phone.replace(/\D/g, "");
+        return `https://wa.me/${cleaned}`;
+    };
+
     return (
         <div className="p-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Lead Reports</h2>
@@ -255,7 +261,18 @@ const Reports = () => {
                                                     {lead.name}
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                                    {lead.phone}
+                                                    <div className="flex items-center gap-2">
+                                                        {lead.phone}
+                                                        <a
+                                                            href={formatWhatsAppLink(lead.phone)}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-green-500 hover:text-green-600 transition-colors"
+                                                            title="Chat on WhatsApp"
+                                                        >
+                                                            <FaWhatsapp size={18} />
+                                                        </a>
+                                                    </div>
                                                 </td>
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {lead.product}
@@ -278,7 +295,7 @@ const Reports = () => {
                                 ))
                             ) : (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-4 text-center text-gray-500">
+                                    <td colSpan="6" className="px-6 py-4 text-center text-gray-500">
                                         No leads found for this selection.
                                     </td>
                                 </tr>

@@ -61,14 +61,14 @@ const Dashboard = ({ user }) => {
         <div className="min-h-screen bg-gray-100 p-8">
             <div className="max-w-4xl mx-auto">
                 <h1 className="text-3xl font-bold mb-8 text-gray-800">
-                    Aeoncare Lead Dashboard
+                    Recent Leads
                 </h1>
 
                 <LeadForm onLeadAdded={handleLeadAdded} />
 
                 <div className="space-y-4">
                     <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-                        Recent Leads
+                        Leads List
                     </h2>
                     {loading ? (
                         <p className="text-gray-500">Loading leads...</p>

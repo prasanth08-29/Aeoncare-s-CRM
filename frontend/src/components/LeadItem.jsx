@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import Modal from "./Modal";
 import { FaWhatsapp } from "react-icons/fa";
 
@@ -7,8 +8,8 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [editData, setEditData] = useState({
-        name: lead.name,
-        product: lead.product
+        product: lead.product,
+        remarks: lead.remarks || ""
     });
 
     const handleStatusChange = async (e) => {
@@ -21,9 +22,10 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
                 config
             );
             onLeadUpdated(res.data);
+            toast.success("Status updated!");
         } catch (err) {
             console.error(err);
-            alert("Error updating status");
+            toast.error("Error updating status");
         }
     };
 
@@ -34,16 +36,17 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
             const res = await axios.put(
                 `/api/leads/${lead._id}`,
                 {
-                    name: editData.name,
-                    product: editData.product
+                    product: editData.product,
+                    remarks: editData.remarks
                 },
                 config
             );
             onLeadUpdated(res.data);
             setIsEditing(false);
+            toast.success("Lead updated!");
         } catch (err) {
             console.error(err);
-            alert("Error updating lead");
+            toast.error("Error updating lead");
         }
     };
 
@@ -58,9 +61,10 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
             await axios.delete(`/api/leads/${lead._id}`, config);
             onLeadDeleted(lead._id);
             setIsDeleteConfirmOpen(false);
+            toast.success("Lead deleted successfully");
         } catch (err) {
             console.error(err);
-            alert("Error deleting lead");
+            toast.error("Error deleting lead");
         }
     };
 
@@ -81,58 +85,76 @@ const LeadItem = ({ lead, sNo, currentUser, onLeadUpdated, onLeadDeleted }) => {
 
     return (
         <>
-            <div className="bg-white p-4 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-center gap-4">
-                <div className="flex-1 w-full">
+            <div className="bg-white px-4 py-2 rounded-lg shadow-sm border border-gray-200 flex flex-col md:flex-row justify-between items-start gap-2">
+                <div className="flex-1 w-full flex items-start gap-3">
+                    {/* Serial Number */}
+                    <div className="text-gray-400 font-bold text-base min-w-[2rem] pt-1">
+                        #{sNo}
+                    </div>
+
                     {isEditing ? (
-                        <div className="space-y-2">
-                            <input
-                                type="text"
-                                value={editData.name}
-                                onChange={(e) => setEditData({ ...editData, name: e.target.value })}
-                                className="w-full p-1 border rounded font-bold text-lg text-gray-800"
-                                placeholder="Name"
-                            />
-                            <p className="text-gray-600">
-                                <span className="font-medium">Phone:</span> {lead.phone} (Read-only)
-                            </p>
-                            <input
-                                type="text"
-                                value={editData.product}
-                                onChange={(e) => setEditData({ ...editData, product: e.target.value })}
-                                className="w-full p-1 border rounded text-gray-600"
-                                placeholder="Product"
-                            />
+                        <div className="space-y-2 flex-1">
+                            <div className="flex items-center gap-2">
+                                <span className="w-16 font-medium text-gray-500 text-sm">Phone:</span>
+                                <span className="text-gray-700 font-medium text-sm">{lead.phone}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="w-16 font-medium text-gray-500 text-sm">Product:</span>
+                                <input
+                                    type="text"
+                                    value={editData.product}
+                                    onChange={(e) => setEditData({ ...editData, product: e.target.value })}
+                                    className="flex-1 p-1 border rounded text-gray-800 focus:ring-1 focus:ring-blue-300 outline-none text-sm"
+                                    placeholder="Product Name"
+                                />
+                            </div>
+                            <div className="flex items-start gap-2">
+                                <span className="w-16 font-medium text-gray-500 text-sm pt-1">Remarks:</span>
+                                <textarea
+                                    value={editData.remarks}
+                                    onChange={(e) => setEditData({ ...editData, remarks: e.target.value })}
+                                    className="flex-1 p-1 border rounded text-gray-800 focus:ring-1 focus:ring-blue-300 outline-none h-16 resize-none text-sm"
+                                    placeholder="Add notes..."
+                                />
+                            </div>
                         </div>
                     ) : (
-                        <>
-                            <h4 className="font-bold text-lg text-gray-800">
-                                <span className="text-gray-500 mr-2">{sNo}.</span>
-                                {lead.name}
-                            </h4>
+                        <div className="space-y-1 flex-1">
+                            {/* Phone Row */}
                             <div className="flex items-center gap-2">
-                                <p className="text-gray-600">
-                                    <span className="font-medium">Phone:</span> {lead.phone}
-                                </p>
+                                <span className="w-16 font-medium text-gray-500 text-sm">Phone:</span>
+                                <span className="text-gray-800 font-medium text-sm">{lead.phone}</span>
                                 <a
                                     href={formatWhatsAppLink(lead.phone)}
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="text-green-500 hover:text-green-600 transition-colors"
+                                    className="text-green-500 hover:text-green-600 transition-colors ml-2"
                                     title="Chat on WhatsApp"
                                 >
-                                    <FaWhatsapp size={24} />
+                                    <FaWhatsapp size={18} />
                                 </a>
                             </div>
-                            <p className="text-gray-600">
-                                <span className="font-medium">Product:</span> {lead.product}
-                            </p>
-                        </>
-                    )}
 
-                    <p className="text-xs text-gray-500 mt-1">
-                        Added by: {lead.createdBy?.username || "Unknown"} on{" "}
-                        {new Date(lead.createdAt).toLocaleDateString()}
-                    </p>
+                            {/* Product Row */}
+                            <div className="flex items-start gap-2">
+                                <span className="w-16 font-medium text-gray-500 text-sm">Product:</span>
+                                <span className="text-gray-800 flex-1 text-sm">{lead.product}</span>
+                            </div>
+
+                            {/* Remarks Row */}
+                            <div className="flex items-start gap-2">
+                                <span className="w-16 font-medium text-gray-500 text-sm">Remarks:</span>
+                                <span className={`flex-1 text-sm ${lead.remarks ? "text-gray-600 italic" : "text-gray-400"}`}>
+                                    {lead.remarks || "No remarks"}
+                                </span>
+                            </div>
+
+                            {/* Meta Info */}
+                            <p className="text-[10px] text-gray-400 mt-1 pl-[4.5rem]">
+                                Added by: {lead.createdBy?.username || "Unknown"} — {new Date(lead.createdAt).toLocaleDateString()}
+                            </p>
+                        </div>
+                    )}
                 </div>
 
                 <div className="flex items-center gap-2">

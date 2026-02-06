@@ -10,6 +10,8 @@ const Dashboard = ({ user }) => {
     const [totalLeads, setTotalLeads] = useState(0);
     const [loading, setLoading] = useState(true);
 
+    const [searchTerm, setSearchTerm] = useState("");
+
     const fetchLeads = async (currentPage = 1) => {
         setLoading(true);
         try {
@@ -57,9 +59,18 @@ const Dashboard = ({ user }) => {
         setLeads(leads.filter((lead) => lead._id !== id));
     };
 
+    const filteredLeads = leads.filter((lead) => {
+        const term = searchTerm.toLowerCase();
+        return (
+            (lead.phone && lead.phone.includes(term)) ||
+            (lead.product && lead.product.toLowerCase().includes(term)) ||
+            (lead.remarks && lead.remarks.toLowerCase().includes(term))
+        );
+    });
+
     return (
         <div className="min-h-screen bg-gray-100 p-8">
-            <div className="max-w-4xl mx-auto">
+            <div className="max-w-7xl mx-auto">
                 <h1 className="text-3xl font-bold mb-8 text-gray-800">
                     Recent Leads
                 </h1>
@@ -67,13 +78,23 @@ const Dashboard = ({ user }) => {
                 <LeadForm onLeadAdded={handleLeadAdded} />
 
                 <div className="space-y-4">
-                    <h2 className="text-2xl font-semibold text-gray-700 mb-4">
-                        Leads List
-                    </h2>
+                    <div className="flex justify-between items-center mb-4">
+                        <h2 className="text-2xl font-semibold text-gray-700">
+                            Leads List
+                        </h2>
+                        <input
+                            type="text"
+                            placeholder="Filter by phone, product..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="p-2 border border-gray-300 rounded-md outline-none focus:ring-2 focus:ring-blue-200 w-64"
+                        />
+                    </div>
+
                     {loading ? (
                         <p className="text-gray-500">Loading leads...</p>
-                    ) : leads.length > 0 ? (
-                        leads.map((lead, index) => (
+                    ) : filteredLeads.length > 0 ? (
+                        filteredLeads.map((lead, index) => (
                             <LeadItem
                                 key={lead._id}
                                 lead={lead}

@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import ProductSearch from "./ProductSearch";
 
 const LeadForm = ({ onLeadAdded }) => {
     const [formData, setFormData] = useState({
-        name: "",
         phone: "",
         product: "",
     });
@@ -30,11 +30,12 @@ const LeadForm = ({ onLeadAdded }) => {
             };
             const res = await axios.post("/api/leads", formData, config);
             onLeadAdded(res.data);
-            setFormData({ name: "", phone: "", product: "" });
+            setFormData({ phone: "", product: "" });
             setResetSearch((prev) => !prev); // Trigger reset in ProductSearch
+            toast.success("Lead added successfully!");
         } catch (err) {
             console.error(err);
-            alert("Error adding lead");
+            toast.error("Error adding lead");
         }
     };
 
@@ -42,15 +43,6 @@ const LeadForm = ({ onLeadAdded }) => {
         <div className="bg-white p-6 rounded-lg shadow-md mb-6">
             <h3 className="text-xl font-semibold mb-4 text-gray-800">Add New Lead</h3>
             <form onSubmit={handleSubmit} className="flex flex-col md:flex-row gap-4">
-                <input
-                    className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 outline-none"
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    placeholder="Customer Name"
-                    required
-                />
                 <input
                     className="flex-1 p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-200 outline-none"
                     type="text"

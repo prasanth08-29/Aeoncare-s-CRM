@@ -8,12 +8,21 @@ import authRoutes from "./routes/auth.js";
 import leadRoutes from "./routes/leads.js";
 import productRoutes from "./routes/products.js";
 
+// Security Packages
+import rateLimit from "express-rate-limit";
+import helmet from "helmet";
+import mongoSanitize from "express-mongo-sanitize";
+import xss from "xss-clean";
+
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Security Middleware
+app.use(helmet());
 
 // Request Logger Middleware
 app.use((req, res, next) => {
@@ -23,6 +32,17 @@ app.use((req, res, next) => {
 
 app.use(cors());
 app.use(express.json());
+
+// Data Sanitization
+app.use(mongoSanitize());
+app.use(xss());
+
+// Rate Limiting
+const limiter = rateLimit({
+  windowMs: 10 * 60 * 1000, // 10 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+});
+app.use("/api", limiter);
 
 // API Routes
 app.use("/api/products", productRoutes);

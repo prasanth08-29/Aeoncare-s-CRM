@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import toast from "react-hot-toast";
 import { FaWhatsapp } from "react-icons/fa";
 
 const Reports = () => {
@@ -15,17 +16,18 @@ const Reports = () => {
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [selectedStatus, setSelectedStatus] = useState("Total"); // Default to showing all or none
+    const [searchTerm, setSearchTerm] = useState("");
     const [editingLeadId, setEditingLeadId] = useState(null);
-    const [editFormData, setEditFormData] = useState({ name: "", product: "", status: "" });
+    const [editFormData, setEditFormData] = useState({ product: "", status: "" });
 
     const handleEditClick = (lead) => {
         setEditingLeadId(lead._id);
-        setEditFormData({ name: lead.name, product: lead.product, status: lead.status });
+        setEditFormData({ product: lead.product, status: lead.status });
     };
 
     const handleCancelEdit = () => {
         setEditingLeadId(null);
-        setEditFormData({ name: "", product: "", status: "" });
+        setEditFormData({ product: "", status: "" });
     };
 
     const handleSaveEdit = async () => {
@@ -43,7 +45,7 @@ const Reports = () => {
             setAllLeads(updatedLeads);
 
             // Re-apply filters
-            filterLeadsByStatus(selectedStatus, updatedLeads);
+            applyFilters(selectedStatus, searchTerm, updatedLeads);
 
             // Update stats
             const newStats = {
@@ -58,7 +60,7 @@ const Reports = () => {
             setEditingLeadId(null);
         } catch (err) {
             console.error(err);
-            alert("Error updating lead");
+            toast.error("Error updating lead");
         }
     };
 
@@ -84,7 +86,7 @@ const Reports = () => {
             setStats(newStats);
 
             // Reset selection or update filtered list based on current selection
-            filterLeadsByStatus(selectedStatus, leads);
+            applyFilters(selectedStatus, searchTerm, leads);
 
         } catch (err) {
             console.error(err);
@@ -95,19 +97,42 @@ const Reports = () => {
         fetchLeads();
     }, []); // Initial load
 
-    const filterLeadsByStatus = (status, leadsToFilter = allLeads) => {
-        setSelectedStatus(status);
-        if (status === "Total") {
-            setFilteredLeads(leadsToFilter);
-        } else {
-            setFilteredLeads(leadsToFilter.filter(l => l.status === status));
+    // Unified Filter Logic
+    const applyFilters = (status, search, leadsSource = allLeads) => {
+        let filtered = leadsSource;
+
+        // 1. Filter by Status
+        if (status !== "Total") {
+            filtered = filtered.filter(l => l.status === status);
         }
+
+        // 2. Filter by Search Term
+        if (search) {
+            const term = search.toLowerCase();
+            filtered = filtered.filter(l =>
+                (l.phone && l.phone.includes(term)) ||
+                (l.product && l.product.toLowerCase().includes(term))
+            );
+        }
+
+        setFilteredLeads(filtered);
+    };
+
+    const handleStatusFilter = (status) => {
+        setSelectedStatus(status);
+        applyFilters(status, searchTerm, allLeads);
+    };
+
+    const handleSearch = (e) => {
+        const term = e.target.value;
+        setSearchTerm(term);
+        applyFilters(selectedStatus, term, allLeads);
     };
 
     const handleDownload = () => {
-        const headers = ["Name,Phone,Product,Status,Date,Created By"];
+        const headers = ["Phone,Product,Status,Date,Created By"];
         const rows = filteredLeads.map(l =>
-            `"${l.name}","${l.phone}","${l.product}","${l.status}","${new Date(l.createdAt).toLocaleDateString()}","${l.createdBy?.username || ''}"`
+            `"${l.phone}","${l.product}","${l.status}","${new Date(l.createdAt).toLocaleDateString()}","${l.createdBy?.username || ''}"`
         );
         const csvContent = "data:text/csv;charset=utf-8," + [headers, ...rows].join("\n");
         const encodedUri = encodeURI(csvContent);
@@ -119,13 +144,16 @@ const Reports = () => {
         document.body.removeChild(link);
     };
 
-    const StatCard = ({ title, value, color, statusKey }) => (
+    const StatCard = ({ title, value, color, statusKey, subText }) => (
         <div
-            onClick={() => filterLeadsByStatus(statusKey)}
-            className={`bg-white p-6 rounded-lg shadow-md border-l-4 ${color} cursor-pointer transition-transform hover:scale-105 ${selectedStatus === statusKey ? 'ring-2 ring-offset-2 ring-blue-400' : ''}`}
+            onClick={() => statusKey && handleStatusFilter(statusKey)}
+            className={`bg-white px-4 py-3 rounded-lg shadow-sm border-l-4 ${color} cursor-pointer transition-transform hover:scale-105 ${selectedStatus === statusKey ? 'ring-1 ring-offset-1 ring-blue-400' : ''}`}
         >
-            <h3 className="text-gray-500 text-sm font-medium uppercase">{title}</h3>
-            <p className="text-3xl font-bold text-gray-800 mt-2">{value}</p>
+            <h3 className="text-gray-500 text-xs font-bold uppercase tracking-wider">{title}</h3>
+            <div className="flex items-baseline gap-2 mt-1">
+                <p className="text-2xl font-bold text-gray-800">{value}</p>
+                {subText && <span className="text-xs text-gray-400">{subText}</span>}
+            </div>
         </div>
     );
 
@@ -134,19 +162,31 @@ const Reports = () => {
         return `https://wa.me/${cleaned}`;
     };
 
+    const conversionRate = stats.total ? ((stats.converted / stats.total) * 100).toFixed(1) : 0;
+
     return (
         <div className="p-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-6">Lead Reports</h2>
 
             {/* Filters */}
             <div className="bg-white p-4 rounded-lg shadow-sm mb-6 flex flex-wrap gap-4 items-end">
+                <div className="flex-1 min-w-[200px]">
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
+                    <input
+                        type="text"
+                        placeholder="Search by phone or product..."
+                        value={searchTerm}
+                        onChange={handleSearch}
+                        className="border rounded p-2 text-sm w-full focus:ring-2 focus:ring-blue-100 outline-none"
+                    />
+                </div>
                 <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
                     <input
                         type="date"
                         value={startDate}
                         onChange={(e) => setStartDate(e.target.value)}
-                        className="border rounded p-2"
+                        className="border rounded p-2 text-sm"
                     />
                 </div>
                 <div>
@@ -155,49 +195,31 @@ const Reports = () => {
                         type="date"
                         value={endDate}
                         onChange={(e) => setEndDate(e.target.value)}
-                        className="border rounded p-2"
+                        className="border rounded p-2 text-sm"
                     />
                 </div>
                 <button
                     onClick={fetchLeads}
-                    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                    className="bg-blue-600 text-white px-4 py-2 rounded text-sm hover:bg-blue-700"
                 >
                     Apply Filter
                 </button>
                 <button
                     onClick={handleDownload}
-                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 ml-auto"
+                    className="bg-green-600 text-white px-4 py-2 rounded text-sm hover:bg-green-700 ml-auto"
                 >
                     Download CSV
                 </button>
             </div>
 
             {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
                 <StatCard title="Total Leads" value={stats.total} color="border-gray-500" statusKey="Total" />
                 <StatCard title="New Leads" value={stats.new} color="border-blue-500" statusKey="New" />
                 <StatCard title="Contacted" value={stats.contacted} color="border-yellow-500" statusKey="Contacted" />
                 <StatCard title="Converted" value={stats.converted} color="border-green-500" statusKey="Converted" />
                 <StatCard title="Lost" value={stats.lost} color="border-red-500" statusKey="Lost" />
-            </div>
-
-            {/* Conversion Rate */}
-            <div className="bg-white p-6 rounded-lg shadow-md mb-8">
-                <h3 className="text-lg font-semibold mb-4">Conversion Rate</h3>
-                <div className="w-full bg-gray-200 rounded-full h-4">
-                    <div
-                        className="bg-green-500 h-4 rounded-full transition-all duration-500"
-                        style={{
-                            width: `${stats.total ? (stats.converted / stats.total) * 100 : 0}%`,
-                        }}
-                    ></div>
-                </div>
-                <p className="text-right text-gray-600 mt-2">
-                    {stats.total
-                        ? ((stats.converted / stats.total) * 100).toFixed(1)
-                        : 0}
-                    % Converted
-                </p>
+                <StatCard title="Conversion Rate" value={`${conversionRate}%`} color="border-purple-500" subText="of Total" />
             </div>
 
             {/* Details Table */}
@@ -212,7 +234,6 @@ const Reports = () => {
                         <thead className="bg-gray-50">
                             <tr>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
                                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
@@ -229,9 +250,7 @@ const Reports = () => {
 
                                         {editingLeadId === lead._id ? (
                                             <>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {lead.name}
-                                                </td>
+
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     {lead.phone}
                                                 </td>
@@ -257,9 +276,7 @@ const Reports = () => {
                                             </>
                                         ) : (
                                             <>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                                    {lead.name}
-                                                </td>
+
                                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                                     <div className="flex items-center gap-2">
                                                         {lead.phone}

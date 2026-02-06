@@ -13,6 +13,8 @@ import ErrorBoundary from "./components/ErrorBoundary";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+import { Toaster } from 'react-hot-toast';
+
 function App() {
   const [user, setUser] = useState(() => {
     const token = localStorage.getItem("token");
@@ -57,6 +59,7 @@ function App() {
 
   return (
     <BrowserRouter>
+      <Toaster position="top-right" />
       <div className="min-h-screen bg-gray-100">
         <Routes>
           <Route path="/login" element={<Login setUser={setUser} />} />

@@ -4,7 +4,6 @@ const leadSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: true,
     },
     phone: {
       type: String,
@@ -22,6 +21,9 @@ const leadSchema = new mongoose.Schema(
       type: String,
       enum: ["New", "Contacted", "Converted", "Lost"],
       default: "New",
+    },
+    remarks: {
+      type: String,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

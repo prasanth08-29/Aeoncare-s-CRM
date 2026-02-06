@@ -71,8 +71,9 @@ router.put("/:id", protect, async (req, res) => {
 
         if (lead) {
             lead.status = status || lead.status;
-            lead.name = req.body.name || lead.name;
-            lead.product = req.body.product || lead.product;
+            lead.name = req.body.name !== undefined ? req.body.name : lead.name;
+            lead.product = req.body.product !== undefined ? req.body.product : lead.product;
+            lead.remarks = req.body.remarks !== undefined ? req.body.remarks : lead.remarks;
             const updatedLead = await lead.save();
             res.json(updatedLead);
         } else {

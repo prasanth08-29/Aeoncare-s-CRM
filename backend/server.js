@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import cors from "cors";
 import dotenv from "dotenv";
 import path from "path";
@@ -55,11 +56,34 @@ app.get("/api/health", (req, res) => {
 });
 
 // Serve static assets (Frontend)
-app.use(express.static(path.join(__dirname, "../frontend/dist")));
+// Serve static assets (Frontend)
+const frontendPath = path.join(__dirname, "../frontend/dist");
+console.log(`Frontend path: ${frontendPath}`);
+
+if (fs.existsSync(frontendPath)) {
+  app.use(express.static(frontendPath));
+} else {
+  console.log("Frontend build not found. Please run npm run build.");
+}
 
 // Catch-all to serve React App
 app.get(/.*/, (req, res) => {
-  res.sendFile(path.join(__dirname, "../frontend/dist", "index.html"));
+  const indexPath = path.join(frontendPath, "index.html");
+  if (fs.existsSync(indexPath)) {
+    res.sendFile(indexPath);
+  } else {
+    res.status(404).send("Frontend not found. Please check deployment build steps.");
+  }
+});
+
+// Global Error Handler
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({
+    success: false,
+    message: "Internal Server Error",
+    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+  });
 });
 
 connectDB();

@@ -35,7 +35,7 @@ app.use(cors());
 app.use(express.json());
 
 // Data Sanitization
-app.use(mongoSanitize());
+// app.use(mongoSanitize()); // FIXME: fast-fix: Incompatible with Express 5 (req.query is getter-only)
 app.use(xss());
 
 // Rate Limiting
